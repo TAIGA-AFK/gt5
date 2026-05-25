@@ -1,1 +1,455 @@
+<!DOCTYPE html>
+<html lang="es">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Interés Compuesto</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .inputs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        .calcular {
+            background: black;
+            color: white;
+        }
+
+        .borrar {
+            background: crimson;
+            color: white;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow: hidden;
+            border-radius: 15px;
+        }
+
+        th,
+        td {
+            padding: 14px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #eee;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .verde {
+            color: green;
+            font-weight: bold;
+        }
+
+        .fila-roja {
+            background: rgba(255, 0, 0, 0.15) !important;
+        }
+
+        .meta-2000 {
+            background: rgba(255, 0, 0, 0.35);
+            color: darkred;
+            font-weight: bold;
+            border: 2px solid red;
+        }
+
+        .mes-1 {
+            background: #ffe5e5;
+        }
+
+        .mes-2 {
+            background: #e5f0ff;
+        }
+
+        .mes-3 {
+            background: #e5ffe8;
+        }
+
+        .mes-4 {
+            background: #fff7e5;
+        }
+
+        .mes-5 {
+            background: #f3e5ff;
+        }
+
+        .mes-6 {
+            background: #e5fff9;
+        }
+
+        .mes-7 {
+            background: #ffe5f7;
+        }
+
+        .mes-8 {
+            background: #edf5e1;
+        }
+
+        .mes-9 {
+            background: #fce1e4;
+        }
+
+        .mes-10 {
+            background: #daf0f7;
+        }
+
+        .mes-11 {
+            background: #f7f3da;
+        }
+
+        .mes-12 {
+            background: #e7daff;
+        }
+
+        .estado-btn {
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .estado-pendiente {
+            background: #ddd;
+            color: black;
+        }
+
+        .estado-completado {
+            background: crimson;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Simulador de Interés Compuesto</h1>
+
+        <div class="inputs">
+            <div>
+                <label>Capital inicial (USD)</label>
+                <input type="number" id="capital" value="169.62">
+            </div>
+
+            <div>
+                <label>Retorno diario (%)</label>
+                <input type="number" id="porcentaje" value="1.8" step="0.1">
+            </div>
+
+            <div>
+                <label>Días proyectados</label>
+                <input type="number" id="dias" value="221">
+            </div>
+        </div>
+
+        <div style="margin-bottom:20px;">
+            <div style="font-weight:bold;margin-bottom:8px;">Progreso hacia meta cuantitativa acumulativa (2000 USD)
+            </div>
+
+            <div style="width:100%;height:28px;background:#ddd;border-radius:20px;overflow:hidden;position:relative;">
+                <div id="barraProgreso" style="height:100%;width:0%;background:crimson;transition:0.3s;"></div>
+
+                <div id="textoBarra"
+                    style="position:absolute;width:100%;top:4px;text-align:center;font-weight:bold;font-size:14px;">
+                    $0 / $2000 USD
+                </div>
+            </div>
+        </div>
+
+        <div id="panelResumen" style="display:flex;gap:15px;flex-wrap:wrap;margin-bottom:20px;">
+            <div style="flex:1;min-width:220px;background:#f5f5f5;padding:18px;border-radius:16px;">
+                <div style="font-size:14px;color:#666;">Ganado hasta hoy</div>
+                <div id="ganadoHoy" style="font-size:32px;font-weight:bold;color:green;">$0 MXN</div>
+            </div>
+
+            <div style="flex:1;min-width:220px;background:#f5f5f5;padding:18px;border-radius:16px;">
+                <div style="font-size:14px;color:#666;">Días restantes</div>
+                <div id="diasRestantes" style="font-size:32px;font-weight:bold;">0</div>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="calcular" onclick="calcular()">Calcular</button>
+            <button class="borrar" onclick="borrarHistorial()">Borrar historial</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr class="${filaRoja}">
+                    <th>Fecha</th>
+                    <th>Día</th>
+                    <th>Ganancia del día</th>
+                    <th>Ganancia del día en MXN</th>
+                    <th>Ingresos acumulados (USD)</th>
+                    <th>Total acumulado</th>
+                    <th>Total en MXN</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody id="tablaBody"></tbody>
+        </table>
+    </div>
+
+    <script>
+        function guardarHistorial(datos) {
+            localStorage.setItem('historialInversion', JSON.stringify(datos));
+        }
+
+        function actualizarResumen(datos) {
+            const completados = datos.filter(x => x.completado);
+
+            let ganado = Number(localStorage.getItem('ganadoAcumuladoMXN')) || 0;
+
+            ganado = 0;
+
+            completados.forEach(item => {
+                ganado += Number(item.ganancia) * 17.31;
+            });
+
+            localStorage.setItem('ganadoAcumuladoMXN', ganado.toFixed(2));
+
+            const restantes = datos.filter(x => !x.completado && x.dia !== 0).length;
+
+            const ganadoEl = document.getElementById('ganadoHoy');
+            const restantesEl = document.getElementById('diasRestantes');
+
+            if (ganadoEl) ganadoEl.innerText = `$${ganado.toFixed(2)} MXN`;
+            if (restantesEl) restantesEl.innerText = restantes;
+
+            let acumuladoUSD = 0;
+
+            completados.forEach(item => {
+                acumuladoUSD += Number(item.ganancia);
+            });
+
+            const porcentaje = Math.min((acumuladoUSD / 2000) * 100, 100);
+
+            const barra = document.getElementById('barraProgreso');
+            const textoBarra = document.getElementById('textoBarra');
+
+            if (barra) barra.style.width = `${porcentaje}%`;
+            if (textoBarra) textoBarra.innerText = `$${acumuladoUSD.toFixed(2)} / $2000 USD`;
+        }
+
+        function toggleCompletado(index) {
+            const datos = JSON.parse(localStorage.getItem('historialInversion')) || [];
+
+            datos[index].completado = !datos[index].completado;
+
+            guardarHistorial(datos);
+            mostrarTabla(datos);
+            actualizarResumen(datos);
+        }
+
+        function cargarHistorial() {
+            const datos = localStorage.getItem('historialInversion');
+
+            if (datos) {
+                mostrarTabla(JSON.parse(datos));
+            }
+        }
+
+        function calcular() {
+            const capital = parseFloat(document.getElementById('capital').value);
+            const porcentaje = parseFloat(document.getElementById('porcentaje').value);
+            const dias = parseInt(document.getElementById('dias').value);
+
+            let historial = [];
+            let total = capital;
+            let ingresosAcumulados = 62.41;
+            const fechaActual = new Date('2026-05-25T00:00:00');
+
+            historial.push({
+                completado: false,
+                dia: 0,
+                fecha: fechaActual.toISOString(),
+                ganancia: 0,
+                ingresosAcumulados: ingresosAcumulados,
+                total: total
+            });
+
+            for (let i = 1; i <= dias; i++) {
+                const ganancia = total * (porcentaje / 100);
+                total += ganancia;
+                ingresosAcumulados += ganancia;
+
+                const nuevaFecha = new Date(fechaActual);
+                nuevaFecha.setDate(nuevaFecha.getDate() + i);
+
+                historial.push({
+                    completado: false,
+                    dia: i,
+                    fecha: nuevaFecha.toISOString(),
+                    ganancia: ganancia,
+                    ingresosAcumulados: ingresosAcumulados,
+                    total: total
+                });
+            }
+
+            guardarHistorial(historial);
+            mostrarTabla(historial);
+            actualizarResumen(historial);
+        }
+
+        const ganadoGuardado = localStorage.getItem('ganadoAcumuladoMXN');
+
+        if (ganadoGuardado && document.getElementById('ganadoHoy')) {
+            document.getElementById('ganadoHoy').innerText = `$${ganadoGuardado} MXN`;
+        }
+
+        function mostrarTabla(datos) {
+            const body = document.getElementById('tablaBody');
+            body.innerHTML = '';
+
+            const tipoCambio = 17.31;
+
+            datos.forEach((item, index) => {
+                const fecha = item.fecha ? new Date(item.fecha) : new Date();
+                const fechaTexto = fecha.toLocaleDateString('es-MX', {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric'
+                });
+                const claseMes = `mes-${fecha.getMonth() + 1}`;
+                const mxn = Number(item.total) * tipoCambio;
+                const gananciaMXN = Number(item.ganancia) * tipoCambio;
+                const clase = gananciaMXN >= 200 ? 'verde' : '';
+                const filaRoja = gananciaMXN >= 50 && gananciaMXN <= 2000 ? 'fila-roja' : '';
+
+                const metaTotal = Number(item.total) >= 2000 ? 'meta-2000' : '';
+                const metaIngresos = Number(item.ingresosAcumulados || 0) >= 2000 ? 'meta-2000' : '';
+
+                let mostrarResumenMes = false;
+                let gananciaMes = 0;
+
+                const fechaSiguiente = datos[index + 1]?.fecha ? new Date(datos[index + 1].fecha) : null;
+
+                if (!fechaSiguiente || fecha.getMonth() !== fechaSiguiente.getMonth()) {
+                    mostrarResumenMes = true;
+
+                    const mesActual = fecha.getMonth();
+
+                    datos.forEach(registro => {
+                        const fechaRegistro = new Date(registro.fecha);
+
+                        if (fechaRegistro.getMonth() === mesActual) {
+                            gananciaMes += Number(registro.ganancia) * 17.31;
+                        }
+                    });
+                }
+
+                body.innerHTML += `
+        <tr>
+          <td class="${claseMes}">${fechaTexto}</td>
+          <td>${item.dia}</td>
+          <td>$${Number(item.ganancia).toFixed(2)}</td>
+          <td class="${clase}">$${gananciaMXN.toFixed(2)} MXN</td>
+          <td class="${metaIngresos}"><strong>$${Number(item.ingresosAcumulados || 0).toFixed(2)}</strong></td>
+          <td class="${metaTotal}"><strong>$${Number(item.total).toFixed(2)}</strong></td>
+          <td>$${mxn.toFixed(2)} MXN</td>
+          <td>
+            <button class="estado-btn ${item.completado ? 'estado-completado' : 'estado-pendiente'}" onclick="toggleCompletado(${datos.indexOf(item)})">
+              ${item.completado ? 'Cobrado' : 'Pendiente'}
+            </button>
+          </td>
+        </tr>
+
+        ${mostrarResumenMes ? `
+          <tr style="background:#111;color:white;font-weight:bold;">
+            <td colspan="7">
+              Ganancia total de ${fecha.toLocaleDateString('es-MX', { month: 'long' })}: $${gananciaMes.toFixed(2)} MXN
+            </td>
+          </tr>
+        ` : ''}
+      `;
+            });
+        }
+
+        function borrarHistorial() {
+            localStorage.removeItem('historialInversion');
+            document.getElementById('tablaBody').innerHTML = '';
+
+            const ganadoEl = document.getElementById('ganadoHoy');
+            const restantesEl = document.getElementById('diasRestantes');
+
+            if (ganadoEl) ganadoEl.innerText = '$0 MXN';
+
+            localStorage.removeItem('ganadoAcumuladoMXN');
+            if (restantesEl) restantesEl.innerText = '0';
+
+            const barra = document.getElementById('barraProgreso');
+            const textoBarra = document.getElementById('textoBarra');
+
+            if (barra) barra.style.width = '0%';
+            if (textoBarra) textoBarra.innerText = '$0 / $2000 USD';
+        }
+
+        cargarHistorial();
+    </script>
+
+</body>
+
+</html>
